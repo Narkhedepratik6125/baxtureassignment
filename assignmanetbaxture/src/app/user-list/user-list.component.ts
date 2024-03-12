@@ -41,16 +41,42 @@ export class UserListComponent implements OnInit {
   //   this.userService.deleteUser(id);
   // }
 
-  deleteUser(userId: number): void {
-    this.userService.deleteUser(userId).subscribe(
-      () => {
-        console.log('User deleted successfully!');
-        // Optionally, update user list or perform other actions
+  // deleteUser(userId: number): void {
+  //   this.userService.deleteUser(userId).subscribe(
+  //     () => {
+  //       console.log('User deleted successfully!');
+  //       // Optionally, update user list or perform other actions
+  //     },
+  //     (error) => {
+  //       console.error('Error deleting user:', error);
+  //     }
+  //   );
+  // }
+
+  getUsers(): void {
+    this.userService.getUsers().subscribe(
+      users => {
+        this.users = users;
       },
-      (error) => {
-        console.error('Error deleting user:', error);
+      error => {
+        console.error('Error fetching users:', error);
       }
     );
+  }
+
+  deleteUser(userId: number): void {
+    if (confirm('Are you sure you want to delete this user?')) {
+      this.userService.deleteUser(userId).subscribe(
+        () => {
+          console.log('User deleted successfully!');
+          // Optionally, update user list or perform other actions
+          this.getUsers(); // Refresh the user list after deletion
+        },
+        error => {
+          console.error('Error deleting user:', error);
+        }
+      );
+    }
   }
 
   selectUser(user: User): void {
