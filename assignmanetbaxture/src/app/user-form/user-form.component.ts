@@ -16,39 +16,69 @@ export class UserFormComponent implements OnInit {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private dataService: DataService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.userForm = this.formBuilder.group({
-      name: ['', Validators.required],
+      firstname: ['', Validators.required],
       lastname: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      address: this.formBuilder.group({
-        street: ['', Validators.required],
-        city: ['', Validators.required],
-        zipcode: ['', Validators.required],
-      }),
+      address: ['']
     });
-    this.dataService.selectedUser$.subscribe((user) => {
+  }
+
+  // ngOnInit(): void {
+  //   this.userForm = this.formBuilder.group({
+  //     name: ['', Validators.required],
+  //     lastname: ['', Validators.required],
+  //     email: ['', [Validators.required, Validators.email]],
+  //     address: this.formBuilder.group({
+  //       street: ['', Validators.required],
+  //       city: ['', Validators.required],
+  //       zipcode: ['', Validators.required],
+  //     }),
+  //   });
+  //   this.dataService.selectedUser$.subscribe((user) => {
+  //     if (user) {
+  //       this.userForm.patchValue(user);
+  //     }
+  //   });
+  // }
+
+  ngOnInit(): void {
+    this.dataService.selectedUser$.subscribe(user => {
       if (user) {
         this.userForm.patchValue(user);
+      } else {
+        this.userForm.reset();
       }
     });
   }
 
+  // onSubmit(): void {
+  //   if (this.userForm.valid) {
+  //     const newUser: User = this.userForm.value;
+  //     this.userService.addUser(newUser).subscribe(
+  //       () => {
+  //         console.log('User added successfully!');
+  //         // Optionally, reset the form after successful submission
+  //         this.userForm.reset();
+  //       },
+  //       (error) => {
+  //         console.error('Error adding user:', error);
+  //       }
+  //     );
+  //   }
+  // }
+
   onSubmit(): void {
-    if (this.userForm.valid) {
-      const newUser: User = this.userForm.value;
-      this.userService.addUser(newUser).subscribe(
-        () => {
-          console.log('User added successfully!');
-          // Optionally, reset the form after successful submission
-          this.userForm.reset();
-        },
-        (error) => {
-          console.error('Error adding user:', error);
-        }
-      );
+    const user: User = this.userForm.value;
+    if (user.id) {
+      this.userService.updateUser(user).subscribe(updatedUser => {
+        this.dataService.setSelectedUser(updatedUser);
+      });
+    } else {
+      this.userService.addUser(user).subscribe(newUser => {
+        this.dataService.setSelectedUser(newUser);
+      });
     }
   }
 }

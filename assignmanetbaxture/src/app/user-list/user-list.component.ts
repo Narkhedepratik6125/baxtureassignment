@@ -18,40 +18,19 @@ export class UserListComponent implements OnInit {
     private http: HttpClient
   ) {}
 
+
   ngOnInit(): void {
-    this.http
-      .get<any[]>('https://jsonplaceholder.typicode.com/users')
-      .subscribe((users: any[]) => {
-        this.users = users.map((user) => ({
-          ...user,
-          createdAt: new Date(user.createdAt),
-          updatedAt: new Date(user.updatedAt),
-        }));
-        console.log(users);
-      });
+    this.dataService.selectedUser$.subscribe(user => {
+      if (user) {
+        const index = this.users.findIndex(u => u.id === user.id);
+        if (index !== -1) {
+          this.users[index] = user;
+        } else {
+          this.users.push(user);
+        }
+      }
+    });
   }
-
-  // ngOnInit(): void {
-  //   this.userService.getUsers().subscribe(users => {
-  //     this.users = users;
-  //   });
-  // }
-
-  // deleteUser(id: number): void {
-  //   this.userService.deleteUser(id);
-  // }
-
-  // deleteUser(userId: number): void {
-  //   this.userService.deleteUser(userId).subscribe(
-  //     () => {
-  //       console.log('User deleted successfully!');
-  //       // Optionally, update user list or perform other actions
-  //     },
-  //     (error) => {
-  //       console.error('Error deleting user:', error);
-  //     }
-  //   );
-  // }
 
   getUsers(): void {
     this.userService.getUsers().subscribe(
